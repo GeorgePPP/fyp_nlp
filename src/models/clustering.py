@@ -3,12 +3,11 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 
 class TextClustering:
-    def __init__(self, n_clusters=5):
+    def __init__(self, config):
+        self.config = config
         self.scaler = StandardScaler()
         self.clustering = AgglomerativeClustering(
-            n_clusters=n_clusters,
-            metric='euclidean',
-            linkage='ward'
+            **self.config.CLUSTERING['hierarchical']
         )
 
     def fit_predict(self, features):

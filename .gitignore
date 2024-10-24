@@ -1,3 +1,6 @@
 *.csv
 *.xlsx
 *.whl
+*.pyc
+logs
+outputs
