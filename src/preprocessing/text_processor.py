@@ -1,9 +1,8 @@
-# preprocessing/text_processor.py
 import nltk
-import spacy
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from nltk.stem import SnowballStemmer
+from nltk.stem import WordNetLemmatizer
+from nltk.tag import pos_tag
 import re
 
 class TextProcessor:
@@ -20,35 +19,34 @@ class TextProcessor:
         nltk.download('punkt', quiet=True)
         nltk.download('stopwords', quiet=True)
         nltk.download('wordnet', quiet=True)
+        nltk.download('averaged_perceptron_tagger', quiet=True)
         
-        self.nlp = spacy.load('en_core_web_sm')
-        self.stemmer = SnowballStemmer('english')
+        self.lemmatizer = WordNetLemmatizer()
         self.stop_words = set(stopwords.words('english'))
+
+    def get_wordnet_pos(self, tag):
+        """
+        Map POS tag to WordNet POS tag format
+        """
+        tag_map = {
+            'J': 'a',  # Adjective
+            'N': 'n',  # Noun
+            'V': 'v',  # Verb
+            'R': 'r'   # Adverb
+        }
+        return tag_map.get(tag[0], 'n')  # Default to noun if tag not found
 
     def preprocess(self, text):
         """Complete text preprocessing pipeline"""
-        if not isinstance(text, str):
-            return ""
-            
-        # Convert to lowercase and remove special characters
+    
+        # Lowercase the text
         text = text.lower()
-        text = re.sub(r'[^a-zA-Z\s]', '', text)
-        
-        # Tokenize
+        # Remove any non-alphabet characters
+        text = re.sub(r'[^a-z\s]', '', text)
+
         tokens = word_tokenize(text)
-        
-        # Filter by word length
-        tokens = [
-            token for token in tokens 
-            if self.config['min_word_length'] <= len(token) <= self.config['max_word_length']
-        ]
-        print(f"Number of tokens: ": {len(tokens)})
-        
-        # Remove stopwords and stem
-        tokens = [
-            self.stemmer.stem(token) 
-            for token in tokens 
-            if token not in self.stop_words
-        ]
+        lemmatized = [self.lemmatizer.lemmatize(word) for word in tokens]
+
+        tokens = [word for word in lemmatized if word not in self.stop_words]
         
         return ' '.join(tokens)

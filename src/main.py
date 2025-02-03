@@ -31,6 +31,7 @@ class NLPPipeline:
 
     @LoggingDecorators.log_step("Text Preprocessing", logger)
     def preprocess_texts(self, df: pd.DataFrame) -> pd.DataFrame:
+        df['Text'] = df['Text'].astype(str)
         df['processed_text'] = df['Text'].fillna('').apply(
             self.text_processor.preprocess
         )
@@ -54,12 +55,6 @@ class NLPPipeline:
             self.config, classifier_type='svm'
         )
         results['svm'] = svm_classifier.evaluate(features, labels)
-        
-        # # Train and evaluate Gaussian Process
-        # gp_classifier = SentimentClassifier(
-        #     self.config, classifier_type='gp'
-        # )
-        # results['gaussian_process'] = gp_classifier.evaluate(features, labels)
         
         return results
 
